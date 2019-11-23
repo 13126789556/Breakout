@@ -13,6 +13,8 @@
 #include "SpriteAnimation.h"
 using namespace sf;
 
+float deltaTime;
+
 Vector2f winSize(750, 900);
 Vector2f p1Size, p2Size, obSize, p1Pos, p2Pos, obPos, bhPos;
 Vector2f ballDir, ballPos;
@@ -36,6 +38,9 @@ Vector2f Lerp(Vector2f v1, Vector2f v2, float t) {
 	return v1 * (1 - t) + v2 * t;
 }
 
+float Dot(Vector2f v1, Vector2f v2) {
+	return v1.x * v2.x + v1.y * v2.y;
+}
 
 void Initial() {
 	winSize = Vector2f(750, 900);
@@ -61,10 +66,11 @@ void Initial() {
 	isTestMode = false;
 }
 
+RenderWindow window(VideoMode(winSize.x, winSize.y), "Pong!");
+
 int main()
 {
 	Initial();
-	RenderWindow window(VideoMode(winSize.x, winSize.y), "Pong!");
 
 	Ball ball(ballPos, ballDir, ballRadius, ballSpeed);
 	Paddle player1(p1Pos, p1Size, p1Speed, Color(255, 0, 0, 255));
@@ -75,8 +81,7 @@ int main()
 	anim.speed = 0.3;
 	SpriteAnimation kojima("kojima.png", 3, 3, 8);
 	kojima.position = Vector2f(winSize.x / 2, winSize.y / 2);
-	SpriteAnimation blackhole("blackhole.png", 5, 5, 24);
-	blackhole.position = bhPos;
+	kojima.speed = 3;
 
 	AudioResource hit("Hit.wav");
 
@@ -95,14 +100,15 @@ int main()
 	UI menuUI(40, Vector2f(90, winSize.y / 2 - 75));
 	menuUI.content = "Press a to play with AI\n\nPress b to play with human player\n\nPress t to test continuous";
 
-	Time time, deltaTime;
+	Time time;
 	Clock fpsClock, fpsUpdate;
 
 	while (window.isOpen())
 	{
 		//deltatime and fps
-		deltaTime = fpsClock.getElapsedTime();	//time between two frame
-		time += deltaTime;
+		deltaTime = fpsClock.getElapsedTime().asSeconds();	//time between two frame
+		time += fpsClock.getElapsedTime();
+
 		frameCount++;
 		if (frameCount >= 10) {	//cauculate fps per 10 frame
 			fps = frameCount / time.asSeconds();
@@ -118,16 +124,16 @@ int main()
 
 		//start menu
 		if (isStartMenu) {
-			deltaTime = Time().Zero;
-			if (Keyboard::isKeyPressed(Keyboard::A) && deltaTime == Time().Zero) {
+			deltaTime = 0;
+			if (Keyboard::isKeyPressed(Keyboard::A) && deltaTime == 0) {
 				player1.isAI = true;
 				isStartMenu = false;
 			}
-			else if (Keyboard::isKeyPressed(Keyboard::B) && deltaTime == Time().Zero) {
+			else if (Keyboard::isKeyPressed(Keyboard::B) && deltaTime == 0) {
 				player1.isAI = false;
 				isStartMenu = false;
 			}
-			else if (Keyboard::isKeyPressed(Keyboard::T) && deltaTime == Time().Zero) {
+			else if (Keyboard::isKeyPressed(Keyboard::T) && deltaTime == 0) {
 				player1.isAI = true;
 				ballSpeed = 100000;
 				ball.velocity = 100000;
@@ -139,14 +145,14 @@ int main()
 
 		//if win 
 		if (score1 >= 5) {	//win detection
-			deltaTime = Time().Zero;
+			deltaTime = 0;
 			winUI.content = "			You Lose! \n\n press space to continue";
 		}
 		if (score2 >= 5) {	//win detection
-			deltaTime = Time().Zero;
+			deltaTime = 0;
 			winUI.content = "			You Win! \n\n press space to continue";
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Space) && deltaTime == Time().Zero) {
+		if (Keyboard::isKeyPressed(Keyboard::Space) && deltaTime == 0) {
 			//score1 = score2 = 0;
 			ball.direction = ballDir;
 			player1.position = p1Pos;
@@ -179,15 +185,14 @@ int main()
 		if (ball.Collision(obstacle)) {	//ball hit obstacle
 			hit.Play();
 		}
-		//ball.InteractWithBlackHole(blackHole);
 
-		//continuous collision // still something wrong
-		if (ball.ContinuousCollision(player1, deltaTime.asSeconds())) {	//ball hit player1's paddle
-			hit.Play();
-		}
-		if (ball.ContinuousCollision(player2, deltaTime.asSeconds())) {	//ball hit player2's paddle
-			hit.Play();
-		}
+		////continuous collision // still something wrong
+		//if (ball.ContinuousCollision(player1)) {	//ball hit player1's paddle
+		//	hit.Play();
+		//}
+		//if (ball.ContinuousCollision(player2)) {	//ball hit player2's paddle
+		//	hit.Play();
+		//}
 
 		//ball out of the table
 		if (winSize.y < ball.position.y + ball.radius) {	//ball off bottom edge
@@ -219,29 +224,29 @@ int main()
 		//Keyboard input
 		if (player1.isAI == false) {
 			if (Keyboard::isKeyPressed(Keyboard::A) && player1.size.x / 2 < player1.position.x) {
-				player1.MoveLeft(deltaTime.asSeconds());
+				player1.MoveLeft();
 			}
 			if (Keyboard::isKeyPressed(Keyboard::D) && player1.position.x < winSize.x - player1.size.x / 2) {
-				player1.MoveRight(deltaTime.asSeconds());
+				player1.MoveRight();
 			}
 		}
 		if (Keyboard::isKeyPressed(Keyboard::Left) && player2.size.x / 2 < player2.position.x) {
-			player2.MoveLeft(deltaTime.asSeconds());
+			player2.MoveLeft();
 		}
 		if (Keyboard::isKeyPressed(Keyboard::Right) && player2.position.x < winSize.x - player2.size.x / 2) {
-			player2.MoveRight(deltaTime.asSeconds());
+			player2.MoveRight();
 		}
 
 		//ai behavior
 		if (player1.isAI == true) {
-			t += deltaTime.asSeconds();
+			t += deltaTime;
 			if (t > 1) {
 				t = 0;
 			}
 			if (t + 0.05 > ball.position.y / winSize.y	//the ball farther, the paddle move lazier // t to control
 				&& ball.direction.y * (ball.position.y - player1.position.y) < 0	//detecte the ball move to ai's side or not
 				&& abs(ball.position.x - player1.position.x) > player1.size.x / 2 - 40) {	//detecte the ball's x axis on ai's paddle or not 
-				player1.UpdateByAI(deltaTime.asSeconds(), ball.position);	//ai move the paddle
+				player1.UpdateByAI(ball.position);	//ai move the paddle
 				if (winSize.x - player1.size.x / 2 < player1.position.x) {	//ai hit the left edge of window
 					player1.position.x = winSize.x - player1.size.x / 2;
 				}
@@ -258,41 +263,38 @@ int main()
 		else if (winSize.x - obstacle.size.x / 2 <= obstacle.position.x) {
 			obstacle.direction = Vector2f(-1, 0);
 		}
-		obstacle.position += obstacle.direction * obstacle.velocity * deltaTime.asSeconds();
+		obstacle.position += obstacle.direction * obstacle.velocity * deltaTime;
 
 		//update ball
-		ball.Update(deltaTime.asSeconds());
+		ball.Update();
 
 		//test
-		anim.Update(deltaTime.asSeconds());
-		kojima.Update(deltaTime.asSeconds());
-		blackhole.Update(deltaTime.asSeconds());
+		anim.Update();
+		kojima.Update();
 
 		window.clear(Color(0, 0, 0, 0));
 		//gameobject
 		window.draw(background);
 		//kojima.Draw(window);
-		blackhole.Draw(window);
-		ball.Draw(window);
-		player1.Draw(window);
-		player2.Draw(window);
-		obstacle.Draw(window);
+		ball.Draw();
+		player1.Draw();
+		player2.Draw();
+		obstacle.Draw();
 
 		//test
-		//anim.Draw(window);
+		anim.Draw();
 
 		//ui
-		fpsUI.Draw(window);
-		score1UI.Draw(window);
-		score2UI.Draw(window);
+		fpsUI.Draw();
+		score1UI.Draw();
+		score2UI.Draw();
 		if (score1 >= 5 || score2 >= 5) {
-			winUI.Draw(window);
+			winUI.Draw();
 		}
 		if (isStartMenu) {
-			menuUI.Draw(window);
+			menuUI.Draw();
 		}
 		window.display();
 	}
-
 	return 0;
 }

@@ -1,5 +1,8 @@
 #include "SpriteAnimation.h"
 
+extern float deltaTime;
+extern RenderWindow window;
+
 SpriteAnimation::SpriteAnimation(std::string resourceName,
 	int colNum,
 	int  rowNum,
@@ -48,8 +51,8 @@ SpriteAnimation::SpriteAnimation(std::string resourceName,
 	sprite.setTextureRect(cell);
 }
 
-void SpriteAnimation::Update(float dt) {
-	interval += dt * speed;
+void SpriteAnimation::Update() {
+	interval += deltaTime * speed;
 	float i = 1.0f / 30.0f;
 	if (interval >= i) {
 		interval = 0;
@@ -63,10 +66,10 @@ void SpriteAnimation::Update(float dt) {
 	cell = IntRect(cellPos, cellSize);
 }
 
-void SpriteAnimation::Draw(RenderWindow& win) {
+void SpriteAnimation::Draw() {
 	sprite.setPosition(position);
 	sprite.setColor(color);
 	cell = IntRect(cellPos, cellSize);
 	sprite.setTextureRect(cell);
-	win.draw(sprite);
+	window.draw(sprite);
 }

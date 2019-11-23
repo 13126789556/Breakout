@@ -18,9 +18,9 @@ public:
 	Sprite sprite;
 
 	Paddle(Vector2f position, Vector2f size, float speed, Color color);
-	void MoveLeft(float dt);
-	void MoveRight(float dt);
-	void UpdateByAI(float dt, Vector2f bPos);
-	void Draw(RenderWindow& win);
+	void MoveLeft();
+	void MoveRight();
+	void UpdateByAI(Vector2f bPos);
+	void Draw();
 	void Collide(RectangleShape r);
 };

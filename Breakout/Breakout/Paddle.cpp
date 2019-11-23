@@ -2,6 +2,8 @@
 
 #include "Paddle.h"
 
+extern float deltaTime;
+extern RenderWindow window;
 
 Paddle::Paddle(Vector2f position, Vector2f size, float velocity, Color color) {
 	this->position = position;
@@ -16,30 +18,30 @@ Paddle::Paddle(Vector2f position, Vector2f size, float velocity, Color color) {
 	sprite.setColor(color);
 }
 
-void Paddle::MoveLeft(float dt) {
-	position = position + Vector2f(-1, 0) * velocity * dt;
+void Paddle::MoveLeft() {
+	position = position + Vector2f(-1, 0) * velocity * deltaTime;
 }
-void Paddle::MoveRight(float dt) {
-	position = position + Vector2f(1, 0) * velocity * dt;
+void Paddle::MoveRight() {
+	position = position + Vector2f(1, 0) * velocity * deltaTime;
 }
 
-void Paddle::UpdateByAI(float dt, Vector2f bPos) {
+void Paddle::UpdateByAI(Vector2f bPos) {
 	if (bPos.x < position.x) {
-		MoveLeft(dt);
+		MoveLeft();
 	}
 	else
 	{
-		MoveRight(dt);
+		MoveRight();
 	}
 }
 
-void Paddle::Draw(RenderWindow& win) {
+void Paddle::Draw() {
 	paddle.setSize(size);
 	paddle.setPosition(position);
 	sprite.setScale(size.x / 160, size.y / 30);
 	sprite.setPosition(position);
 	//win.draw(paddle);
-	win.draw(sprite);
+	window.draw(sprite);
 }
 
 void Paddle::Collide(RectangleShape r) {

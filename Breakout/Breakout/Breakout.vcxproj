@@ -152,6 +152,8 @@
     <ClCompile Include="AudioResource.cpp" />
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Breakout_Main.cpp" />
+    <ClCompile Include="Brick.cpp" />
+    <ClCompile Include="LevelManager.cpp" />
     <ClCompile Include="Paddle.cpp" />
     <ClCompile Include="SpriteAnimation.cpp" />
     <ClCompile Include="UI.cpp" />
@@ -159,6 +161,8 @@
   <ItemGroup>
     <ClInclude Include="AudioResource.h" />
     <ClInclude Include="Ball.h" />
+    <ClInclude Include="Brick.h" />
+    <ClInclude Include="LevelManager.h" />
     <ClInclude Include="Paddle.h" />
     <ClInclude Include="SpriteAnimation.h" />
     <ClInclude Include="UI.h" />

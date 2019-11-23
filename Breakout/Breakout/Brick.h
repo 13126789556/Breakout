@@ -7,18 +7,16 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Main.hpp>
 using namespace sf;
-class UI
+class Brick
 {
 public:
-	Font font;
-	Text text;
-	float characterSize;
-	Vector2f position;
-	String content;
+	Vector2f size, position;
+	RectangleShape rectangle;
+	Texture texture;
+	Sprite sprite;
 
-	UI(float characterSize, Vector2f position);
-	void setText(String s);
-	void Update();
-	void Draw();
+	Brick(Vector2f position, Vector2f size);
+	void Draw(RenderWindow& win);
+	~Brick();
 };
 

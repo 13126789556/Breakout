@@ -24,7 +24,7 @@ public:
 		int frameNum,
 		Vector2f position,
 		Color color);
-	void Update(float dt);
-	void Draw(RenderWindow& win);
+	void Update();
+	void Draw();
 };
 

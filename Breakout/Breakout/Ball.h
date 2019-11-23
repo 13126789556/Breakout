@@ -7,6 +7,7 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Main.hpp>
 #include "Paddle.h"
+#include "Brick.h"
 //#include "BlackHole.h"
 using namespace sf;
 
@@ -21,10 +22,10 @@ public:
 	bool isContinuousCollided;
 
 	Ball(Vector2f position, Vector2f direction, float radius, float velocity);
-	void Update(float dt);
+	void Update();
 	bool Collision(Paddle p);
-	bool ContinuousCollision(Paddle p, float dt);
-	//void InteractWithBlackHole(BlackHole blackHole);
-	void Draw(RenderWindow& win);
+	bool Collision(Brick b);
+	bool ContinuousCollision(Paddle p);
+	void Draw();
 };
 

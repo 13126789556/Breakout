@@ -1,13 +1,23 @@
 #pragma once
 #include <string>
+#include <fstream>
 #include "Brick.h"
-using namespace std;
+#include "Ball.h"
+
 using namespace sf;
+using namespace std;
 
 class LevelManager
 {
 public:
 	string level;
 	vector<Brick> bricks;
+	Vector2f pos;
+
+	LevelManager();
+	void Creat(int i);
+	bool isClear();
+	void Clear();
+	void UpdateLevel();
 };
 

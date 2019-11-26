@@ -52,7 +52,7 @@ bool Ball::Collision(Paddle p) {
 			position.y = p.position.y - p.size.y / 2 - radius;
 		}
 		//change direction by position
-		direction = Normalize(Lerp(Normalize(position - p.position), Vector2f(direction.x, -direction.y), 1));
+		direction = Normalize(Lerp(Normalize(position - p.position), Vector2f(direction.x, -direction.y), 0.4));
 		return true;
 	}
 	//ball hit left or right edge
@@ -92,54 +92,60 @@ bool Ball::Collision(Paddle p) {
 	return false;
 }
 
-//bool Ball::Collision(Brick b) {
-//	//4 vertex of paddle
-//	Vector2f p1(b.position.x - b.size.x / 2, b.position.y - b.size.y / 2),
-//		p2(b.position.x + b.size.x / 2, b.position.y - b.size.y / 2),
-//		p3(b.position.x - b.size.x / 2, b.position.y + b.size.y / 2),
-//		p4(b.position.x + b.size.x / 2, b.position.y + b.size.y / 2);
-//	//ball hit top or bottom edge of paddle
-//	if (abs(position.y - b.position.y) < radius + b.size.y / 2
-//		&& abs(position.x - b.position.x) < b.size.x / 2) {
-//		if (position.y > b.position.y) {
-//			position.y = b.position.y + b.size.y / 2 + radius;
-//		}
-//		else {
-//			position.y = b.position.y - b.size.y / 2 - radius;
-//		}
-//		//change direction by position
-//		direction = Vector2f(direction.x, -direction.y);
-//		return true;
-//	}
-//	//ball hit left or right edge
-//	else if (abs(position.x - b.position.x) < radius + b.size.x / 2
-//		&& abs(position.y - b.position.y) < b.size.y / 2) {
-//		if (position.x > b.position.x) {
-//			position.x = b.position.x + b.size.x / 2 + radius;
-//		}
-//		else {
-//			position.x = b.position.x - b.size.x / 2 - radius;
-//		}
-//		//speed += 10.0f;
-//		direction.x *= -1;
-//		return true;
-//	}
-//	//ball hit 4 vertex of paddle
-//	else if (Magnitude(position - p1) < radius
-//		|| Magnitude(position - p2) < radius
-//		|| Magnitude(position - p3) < radius
-//		|| Magnitude(position - p4) < radius) {
-//		if (position.x > b.position.x) {
-//			position.x = b.position.x + b.size.x / 2 + radius;
-//		}
-//		else {
-//			position.x = b.position.x - b.size.x / 2 - radius;
-//		}
-//		direction = Vector2f(direction.x, -direction.y);
-//		return true;
-//	}
-//	return false;
-//}
+bool Ball::Collision(Brick b) {
+	//4 vertex of brick
+	Vector2f p1(b.position.x - b.size.x / 2, b.position.y - b.size.y / 2),
+		p2(b.position.x + b.size.x / 2, b.position.y - b.size.y / 2),
+		p3(b.position.x - b.size.x / 2, b.position.y + b.size.y / 2),
+		p4(b.position.x + b.size.x / 2, b.position.y + b.size.y / 2);
+	//ball hit top or bottom edge of brick
+	if (abs(position.y - b.position.y) < radius + b.size.y / 2
+		&& abs(position.x - b.position.x) < b.size.x / 2) {
+		if (position.y > b.position.y) {
+			position.y = b.position.y + b.size.y / 2 + radius;
+		}
+		else {
+			position.y = b.position.y - b.size.y / 2 - radius;
+		}
+		direction = Vector2f(direction.x, -direction.y);
+		return true;
+	}
+	//ball hit left or right edge
+	else if (abs(position.x - b.position.x) < radius + b.size.x / 2
+		&& abs(position.y - b.position.y) < b.size.y / 2) {
+		if (position.x > b.position.x) {
+			position.x = b.position.x + b.size.x / 2 + radius;
+		}
+		else {
+			position.x = b.position.x - b.size.x / 2 - radius;
+		}
+		//speed += 10.0f;
+		direction.x *= -1;
+		return true;
+	}
+	//ball hit 4 vertex of paddle
+	else if (Magnitude(position - p1) < radius) {
+		position = p1 + Normalize(position - p1) * radius;
+		direction = direction - 2 * Dot(direction, Normalize(position - p1)) * Normalize(position - p1);
+		return true;
+	}
+	else if (Magnitude(position - p2) < radius) {
+		position = p2 + Normalize(position - p2) * radius;
+		direction = direction - 2 * Dot(direction, Normalize(position - p2)) * Normalize(position - p2);
+		return true;
+	}
+	else if (Magnitude(position - p3) < radius) {
+		position = p3 + Normalize(position - p3) * radius;
+		direction = direction - 2 * Dot(direction, Normalize(position - p3)) * Normalize(position - p3);
+		return true;
+	}
+	else if (Magnitude(position - p4) < radius) {
+		position = p4 + Normalize(position - p4) * radius;
+		direction = direction - 2 * Dot(direction, Normalize(position - p4)) * Normalize(position - p4);
+		return true;
+	}
+	return false;
+}
 
 bool Ball::ContinuousCollision(Paddle p) {
 	Vector2f hitPoint = position + direction * radius;

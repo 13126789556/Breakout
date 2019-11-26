@@ -1,3 +1,4 @@
+#pragma once
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Audio.hpp>
@@ -7,22 +8,22 @@
 #include <SFML/Main.hpp>
 //#include "VectorCalculation.h"
 #include "Ball.h"
+//#include "Brick.h"
 #include "Paddle.h"
 #include "UI.h"
 #include "AudioResource.h"
 #include "SpriteAnimation.h"
+#include "LevelManager.h"
 using namespace sf;
 
 float deltaTime;
 
-Vector2f winSize(750, 900);
-Vector2f p1Size, p2Size, obSize, p1Pos, p2Pos, obPos, bhPos;
+Vector2f winSize(800, 900);
+Vector2f p1Size, obSize, p1Pos;
 Vector2f ballDir, ballPos;
-float ballRadius, ballSpeed, p1Speed, p2Speed, t, obSpeed, bhRadius;
-int fps, frameCount, score1, score2;
-bool isStartMenu;
-bool isAIMode;
-bool isTestMode;
+float ballRadius, ballSpeed, p1Speed, t;
+int fps, frameCount, score, life, lvNO;
+bool isReadyState, isEnd;
 
 float Magnitude(Vector2f v) {
 	return sqrt(v.x * v.x + v.y * v.y);
@@ -43,27 +44,20 @@ float Dot(Vector2f v1, Vector2f v2) {
 }
 
 void Initial() {
-	winSize = Vector2f(750, 900);
+	winSize = Vector2f(800, 900);
 	p1Size = Vector2f(160, 25);
-	p2Size = Vector2f(160, 25);
 	obSize = Vector2f(130, 40);
-	p1Pos = Vector2f(winSize.x / 2, p1Size.y * 1.5);
-	p2Pos = Vector2f(winSize.x / 2, winSize.y - p1Size.y * 1.5);
-	bhPos = Vector2f(winSize.x / 2 + 200, winSize.y / 2 + 200);
-	obPos = Vector2f(obSize.x / 2, winSize.y / 2);
+	p1Pos = Vector2f(winSize.x / 2, winSize.y - p1Size.y * 1.5);
 	ballPos = Vector2f(winSize.x / 2, winSize.y / 2);
-	ballDir = Normalize(Vector2f(0, 1));
-	ballSpeed = 550;
+	ballDir = Normalize(Vector2f(0, -1));
+	ballSpeed = 500;
 	p1Speed = 600;
-	p2Speed = 600;
-	obSpeed = 350;
 	ballRadius = 25.0f;
-	bhRadius = 100;
-	score1 = 0;
-	score2 = 0;
-	isStartMenu = true;
-	isAIMode = true;
-	isTestMode = false;
+	score = 0;
+	life = 3;
+	isReadyState = true;
+	isEnd = true;
+	lvNO = 0;
 }
 
 RenderWindow window(VideoMode(winSize.x, winSize.y), "Pong!");
@@ -71,11 +65,10 @@ RenderWindow window(VideoMode(winSize.x, winSize.y), "Pong!");
 int main()
 {
 	Initial();
-
 	Ball ball(ballPos, ballDir, ballRadius, ballSpeed);
-	Paddle player1(p1Pos, p1Size, p1Speed, Color(255, 0, 0, 255));
-	Paddle player2(p2Pos, p2Size, p2Speed, Color(0, 255, 0, 255));
-	Paddle obstacle(obPos, obSize, obSpeed, Color(0, 0, 255, 255));
+	LevelManager levelManager;
+
+	Paddle player1(p1Pos, p1Size, p1Speed, Color(0, 255, 0, 255));
 
 	SpriteAnimation anim("Sprite_Sheet_Test.png", 8, 1, 8);
 	anim.speed = 0.3;
@@ -92,16 +85,15 @@ int main()
 	background.setTexture(backgroundTexture);
 
 	UI fpsUI(20, Vector2f(winSize.x - 100, 0));
-	UI score1UI(40, Vector2f(0, winSize.y / 2 - 60));
-	score1UI.content = std::to_string(score1);
-	UI score2UI(40, Vector2f(0, winSize.y / 2 + 10));
-	score2UI.content = std::to_string(score2);
+	UI scoreUI(40, Vector2f(winSize.x / 2 - 10, 10));
+	scoreUI.content = std::to_string(score);
 	UI winUI(50, Vector2f(winSize.x / 2 - 280, winSize.y / 2 - 75));
-	UI menuUI(40, Vector2f(90, winSize.y / 2 - 75));
-	menuUI.content = "Press a to play with AI\n\nPress b to play with human player\n\nPress t to test continuous";
+	UI menuUI(40, Vector2f(190, winSize.y - 175));
+	UI health(40, Vector2f(0, 20));
+	menuUI.content = "Press space to start";
 
 	Time time;
-	Clock fpsClock, fpsUpdate;
+	Clock fpsClock, fpsUpdate, physicsDetect;
 
 	while (window.isOpen())
 	{
@@ -122,70 +114,74 @@ int main()
 		}
 		fpsClock.restart();
 
-		//start menu
-		if (isStartMenu) {
-			deltaTime = 0;
-			if (Keyboard::isKeyPressed(Keyboard::A) && deltaTime == 0) {
-				player1.isAI = true;
-				isStartMenu = false;
+		//ready state
+		if (isReadyState) {
+			ball.velocity = 0;
+			ball.position = player1.position - Vector2f(0, player1.size.y / 2 + ball.radius);
+			ball.direction = Vector2f(0, -1);
+			if (levelManager.isClear()) {
+				levelManager.Creat(lvNO % 3);
 			}
-			else if (Keyboard::isKeyPressed(Keyboard::B) && deltaTime == 0) {
-				player1.isAI = false;
-				isStartMenu = false;
-			}
-			else if (Keyboard::isKeyPressed(Keyboard::T) && deltaTime == 0) {
-				player1.isAI = true;
-				ballSpeed = 100000;
-				ball.velocity = 100000;
-				ball.direction = Vector2f(0, 1);
-				obstacle.velocity = 0;
-				isStartMenu = false;
+			if (Keyboard::isKeyPressed(Keyboard::Space)) {
+				ball.velocity = ballSpeed;
+				isReadyState = false;
 			}
 		}
 
 		//if win 
-		if (score1 >= 5) {	//win detection
+		if (levelManager.isClear()) {	//win detection
 			deltaTime = 0;
-			winUI.content = "			You Lose! \n\n press space to continue";
+			isEnd = true;
+			isReadyState = true;
+			lvNO++;
+			winUI.content = "			You Win! ";
+			ball.velocity += 60;
 		}
-		if (score2 >= 5) {	//win detection
-			deltaTime = 0;
-			winUI.content = "			You Win! \n\n press space to continue";
-		}
-		if (Keyboard::isKeyPressed(Keyboard::Space) && deltaTime == 0) {
-			//score1 = score2 = 0;
-			ball.direction = ballDir;
-			player1.position = p1Pos;
-			player2.position = p2Pos;
-			obstacle.position = obPos;
-			score1UI.content = std::to_string(score1 = 0);
-			score2UI.content = std::to_string(score2 = 0);
-			isStartMenu = true;
+
+		//ball out of the table
+		if (winSize.y < ball.position.y - ball.radius * 2) {	//ball off bottom edge
+			isReadyState = true;
+			isEnd = false;
+			life--;
+			if (life <= 0) {	//you die
+				life = 3;
+				isEnd = true;
+				levelManager.Clear();
+				winUI.content = "			You lose! \n\n		Your score is " + to_string(score);
+				lvNO = 0;
+				scoreUI.content = std::to_string(score = 0);
+				ball.velocity = ballSpeed;
+			}
 		}
 
 		//ball collision detection
-		if (winSize.x < ball.position.x + ball.radius) {	//ball hit right edge
-			ball.position.x = winSize.x - ball.radius;
-			ball.direction.x *= -1;
-			hit.Play();
+		if (physicsDetect.getElapsedTime().asSeconds() >= 0.02) {	//per 0.02s detect once
+			physicsDetect.restart();
+			if (winSize.x < ball.position.x + ball.radius) {	//ball hit right edge
+				ball.position.x = winSize.x - ball.radius;
+				ball.direction.x *= -1;
+				hit.Play();
+			}
+			if (ball.position.x - ball.radius < 0) {	// ball hit left edge
+				ball.position.x = ball.radius;
+				ball.direction.x *= -1;
+				hit.Play();
+			}
+			if (ball.position.y - ball.radius < 0) {	// ball hit top edge
+				ball.position.y = ball.radius;
+				ball.direction.y *= -1;
+				hit.Play();
+			}
+			if (ball.Collision(player1)) {	//ball hit player's paddle
+				hit.Play();
+			}
+			for (int i = 0; i < levelManager.bricks.size(); i++) {	//ball hit bricks
+				if (ball.Collision(levelManager.bricks[i])) {
+					levelManager.bricks.erase(levelManager.bricks.begin() + i);
+					scoreUI.content = std::to_string(score += 1);
+				}
+			}
 		}
-		if (ball.position.x - ball.radius < 0) {	// ball hit left edge
-			ball.position.x = ball.radius;
-			ball.direction.x *= -1;
-			hit.Play();
-		}
-		if (ball.Collision(player1)) {	//ball hit player1's paddle
-			ball.velocity += 40.0f;
-			hit.Play();
-		}
-		if (ball.Collision(player2)) {	//ball hit player2's paddle
-			ball.velocity += 40.0f;
-			hit.Play();
-		}
-		if (ball.Collision(obstacle)) {	//ball hit obstacle
-			hit.Play();
-		}
-
 		////continuous collision // still something wrong
 		//if (ball.ContinuousCollision(player1)) {	//ball hit player1's paddle
 		//	hit.Play();
@@ -193,26 +189,6 @@ int main()
 		//if (ball.ContinuousCollision(player2)) {	//ball hit player2's paddle
 		//	hit.Play();
 		//}
-
-		//ball out of the table
-		if (winSize.y < ball.position.y + ball.radius) {	//ball off bottom edge
-			ball.position = Vector2f(winSize.x / 2, winSize.y / 2);
-			ball.velocity = ballSpeed;
-			obstacle.position = obPos;
-			score1 += 1;
-			score1UI.content = std::to_string(score1);
-			//ball.position.y = winSize.y - ball.radius;
-			//ball.direction.y *= -1;
-		}
-		if (ball.position.y - ball.radius < 0) {	//ball off top edge
-			ball.position = Vector2f(winSize.x / 2, winSize.y / 2);
-			ball.velocity = ballSpeed;
-			obstacle.position = obPos;
-			score2 += 1;
-			score2UI.content = std::to_string(score2);
-			//ball.position.y = ball.radius;
-			//ball.direction.y *= -1;
-		}
 
 		Event event;
 		while (window.pollEvent(event))
@@ -222,48 +198,13 @@ int main()
 		}
 
 		//Keyboard input
-		if (player1.isAI == false) {
-			if (Keyboard::isKeyPressed(Keyboard::A) && player1.size.x / 2 < player1.position.x) {
-				player1.MoveLeft();
-			}
-			if (Keyboard::isKeyPressed(Keyboard::D) && player1.position.x < winSize.x - player1.size.x / 2) {
-				player1.MoveRight();
-			}
+		if (Keyboard::isKeyPressed(Keyboard::Left) && player1.size.x / 2 < player1.position.x) {
+			player1.MoveLeft();
 		}
-		if (Keyboard::isKeyPressed(Keyboard::Left) && player2.size.x / 2 < player2.position.x) {
-			player2.MoveLeft();
-		}
-		if (Keyboard::isKeyPressed(Keyboard::Right) && player2.position.x < winSize.x - player2.size.x / 2) {
-			player2.MoveRight();
+		if (Keyboard::isKeyPressed(Keyboard::Right) && player1.position.x < winSize.x - player1.size.x / 2) {
+			player1.MoveRight();
 		}
 
-		//ai behavior
-		if (player1.isAI == true) {
-			t += deltaTime;
-			if (t > 1) {
-				t = 0;
-			}
-			if (t + 0.05 > ball.position.y / winSize.y	//the ball farther, the paddle move lazier // t to control
-				&& ball.direction.y * (ball.position.y - player1.position.y) < 0	//detecte the ball move to ai's side or not
-				&& abs(ball.position.x - player1.position.x) > player1.size.x / 2 - 40) {	//detecte the ball's x axis on ai's paddle or not 
-				player1.UpdateByAI(ball.position);	//ai move the paddle
-				if (winSize.x - player1.size.x / 2 < player1.position.x) {	//ai hit the left edge of window
-					player1.position.x = winSize.x - player1.size.x / 2;
-				}
-				if (player1.position.x < player1.size.x / 2) {	//ai hit the right edge of window
-					player1.position.x = player1.size.x / 2;
-				}
-			}
-		}
-
-		//update obstacle
-		if (obstacle.position.x <= obstacle.size.x / 2) {
-			obstacle.direction = Vector2f(1, 0);
-		}
-		else if (winSize.x - obstacle.size.x / 2 <= obstacle.position.x) {
-			obstacle.direction = Vector2f(-1, 0);
-		}
-		obstacle.position += obstacle.direction * obstacle.velocity * deltaTime;
 
 		//update ball
 		ball.Update();
@@ -274,25 +215,23 @@ int main()
 
 		window.clear(Color(0, 0, 0, 0));
 		//gameobject
-		window.draw(background);
 		//kojima.Draw(window);
+		levelManager.UpdateLevel();
+		window.draw(background);
 		ball.Draw();
 		player1.Draw();
-		player2.Draw();
-		obstacle.Draw();
 
 		//test
 		anim.Draw();
 
 		//ui
 		fpsUI.Draw();
-		score1UI.Draw();
-		score2UI.Draw();
-		if (score1 >= 5 || score2 >= 5) {
-			winUI.Draw();
-		}
-		if (isStartMenu) {
+		scoreUI.Draw();
+		if (isReadyState) {
 			menuUI.Draw();
+			if (isEnd) {
+				winUI.Draw();
+			}
 		}
 		window.display();
 	}

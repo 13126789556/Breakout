@@ -6,8 +6,8 @@
 #include <SFML/System.hpp>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Main.hpp>
-#include "Paddle.h"
 #include "Brick.h"
+#include "Paddle.h"
 //#include "BlackHole.h"
 using namespace sf;
 

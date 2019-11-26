@@ -10,13 +10,18 @@ using namespace sf;
 class Brick
 {
 public:
-	Vector2f size, position;
+	Vector2f position;
+	Vector2f size;
 	RectangleShape rectangle;
 	Texture texture;
 	Sprite sprite;
+	enum BrickType{normal, strong, invincible, accelerate};
+	BrickType type;
 
 	Brick(Vector2f position, Vector2f size);
-	void Draw(RenderWindow& win);
-	~Brick();
+	Brick(Vector2f position);
+	Brick();
+	void Draw();
+	//~Brick();
 };
 

@@ -40,10 +40,5 @@ void Paddle::Draw() {
 	paddle.setPosition(position);
 	sprite.setScale(size.x / 160, size.y / 30);
 	sprite.setPosition(position);
-	//win.draw(paddle);
 	window.draw(sprite);
-}
-
-void Paddle::Collide(RectangleShape r) {
-
 }

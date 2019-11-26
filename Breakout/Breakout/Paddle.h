@@ -22,5 +22,4 @@ public:
 	void MoveRight();
 	void UpdateByAI(Vector2f bPos);
 	void Draw();
-	void Collide(RectangleShape r);
 };

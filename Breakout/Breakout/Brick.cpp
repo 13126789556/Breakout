@@ -51,6 +51,7 @@ Brick::Brick() {
 }
 
 void Brick::Draw() {
+<<<<<<< HEAD
 	//switch (type)
 	//{
 	//case Brick::normal:
@@ -68,6 +69,9 @@ void Brick::Draw() {
 	//default:
 	//	break;
 	//}
+=======
+	sprite.setTexture(texture);
+>>>>>>> parent of d3869b9... level load optimize & different type of brick
 	sprite.setPosition(position);
 	window.draw(sprite);
 }

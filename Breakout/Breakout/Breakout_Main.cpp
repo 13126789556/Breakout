@@ -123,7 +123,7 @@ int main()
 				levelManager.Creat(lvNO % 3);
 			}
 			if (Keyboard::isKeyPressed(Keyboard::Space)) {
-				ball.velocity = ballSpeed + lvNO * 60;
+				ball.velocity = ballSpeed;
 				isReadyState = false;
 			}
 		}
@@ -135,7 +135,7 @@ int main()
 			isReadyState = true;
 			lvNO++;
 			winUI.content = "			You Win! ";
-			ball.velocity += 100;
+			ball.velocity += 60;
 		}
 
 		//ball out of the table
@@ -175,6 +175,7 @@ int main()
 			if (ball.Collision(player1)) {	//ball hit player's paddle
 				hit.Play();
 			}
+<<<<<<< HEAD
 			//for (int i = 0; i < levelManager.bricks.size(); i++) {	//ball hit bricks
 			//	if (ball.Collision(levelManager.bricks[i])) {
 			//		switch (levelManager.bricks[i].type)
@@ -199,6 +200,14 @@ int main()
 			//		}
 			//	}
 			//}
+=======
+			for (int i = 0; i < levelManager.bricks.size(); i++) {	//ball hit bricks
+				if (ball.Collision(levelManager.bricks[i])) {
+					levelManager.bricks.erase(levelManager.bricks.begin() + i);
+					scoreUI.content = std::to_string(score += 1);
+				}
+			}
+>>>>>>> parent of d3869b9... level load optimize & different type of brick
 		}
 		////continuous collision // still something wrong
 		//if (ball.ContinuousCollision(player1)) {	//ball hit player1's paddle

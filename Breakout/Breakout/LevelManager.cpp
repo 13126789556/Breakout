@@ -45,6 +45,7 @@ void LevelManager::Clear() {
 void LevelManager::UpdateLevel()
 {
 	for (auto item : bricks) {
+		//ball.Collision(item);
 		item.Draw();
 	}
 }

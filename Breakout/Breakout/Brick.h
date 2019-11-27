@@ -13,7 +13,7 @@ public:
 	Vector2f position;
 	Vector2f size;
 	RectangleShape rectangle;
-	Texture textureN, textureS, textureB, textureI, textureA;
+	Texture texture;
 	Sprite sprite;
 	enum BrickType{normal, strong, invincible, accelerate};
 	BrickType type;

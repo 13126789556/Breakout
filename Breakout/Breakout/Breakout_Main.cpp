@@ -77,6 +77,11 @@ int main()
 	kojima.speed = 3;
 
 	AudioResource hit("Hit.wav");
+	AudioResource destroyBrick("Destroy_Brick.wav");
+	AudioResource hitBrick("Hit_Brick.wav");
+	AudioResource hitPaddle("Hit_Paddle.wav");
+	AudioResource loseLife("Lose_Life.wav");
+	AudioResource winLvl("Win.wav");
 
 	Texture backgroundTexture;
 	backgroundTexture.loadFromFile("Background_Texture.png");
@@ -85,12 +90,13 @@ int main()
 	background.setTexture(backgroundTexture);
 
 	UI fpsUI(20, Vector2f(winSize.x - 100, 0));
-	UI scoreUI(40, Vector2f(winSize.x / 2 - 10, 10));
-	scoreUI.content = std::to_string(score);
+	UI scoreUI(40, Vector2f(winSize.x / 2 - 40, 10));
+	scoreUI.content = "Score:" + std::to_string(score);
 	UI winUI(50, Vector2f(winSize.x / 2 - 280, winSize.y / 2 - 75));
 	UI menuUI(40, Vector2f(190, winSize.y - 175));
-	UI health(40, Vector2f(0, 20));
 	menuUI.content = "Press space to start";
+	UI health(40, Vector2f(0, 20));
+	health.content = "Life:" + std::to_string(life);
 
 	Time time;
 	Clock fpsClock, fpsUpdate, physicsDetect;
@@ -123,7 +129,7 @@ int main()
 				levelManager.Creat(lvNO % 3);
 			}
 			if (Keyboard::isKeyPressed(Keyboard::Space)) {
-				ball.velocity = ballSpeed;
+				ball.velocity = ballSpeed + lvNO * 60;
 				isReadyState = false;
 			}
 		}
@@ -135,7 +141,8 @@ int main()
 			isReadyState = true;
 			lvNO++;
 			winUI.content = "			You Win! ";
-			ball.velocity += 60;
+			ball.velocity += 100;
+			winLvl.Play();
 		}
 
 		//ball out of the table
@@ -149,9 +156,11 @@ int main()
 				levelManager.Clear();
 				winUI.content = "			You lose! \n\n		Your score is " + to_string(score);
 				lvNO = 0;
-				scoreUI.content = std::to_string(score = 0);
+				scoreUI.content = "Score:" + std::to_string(score = 0);
 				ball.velocity = ballSpeed;
 			}
+			health.content = "Life:" + std::to_string(life);
+			loseLife.Play();
 		}
 
 		//ball collision detection
@@ -173,75 +182,36 @@ int main()
 				hit.Play();
 			}
 			if (ball.Collision(player1)) {	//ball hit player's paddle
-				hit.Play();
+				hitPaddle.Play();
 			}
-<<<<<<< HEAD
-<<<<<<< HEAD
-			//for (int i = 0; i < levelManager.bricks.size(); i++) {	//ball hit bricks
-			//	if (ball.Collision(levelManager.bricks[i])) {
-			//		switch (levelManager.bricks[i].type)
-			//		{
-			//		case Brick::normal:
-			//			levelManager.bricks.erase(levelManager.bricks.begin() + i);
-			//			scoreUI.content = std::to_string(score += 1);
-			//			break;
-			//		case Brick::strong:
-			//			if (levelManager.bricks[i].hitPoint-- <= 0) {
-			//				levelManager.bricks.erase(levelManager.bricks.begin() + i);
-			//			}
-			//			scoreUI.content = std::to_string(score += 1);
-			//			break;
-			//		case Brick::invincible:
-			//			break;
-			//		case Brick::accelerate:
-			//			levelManager.bricks.erase(levelManager.bricks.begin() + i);
-			//			ball.velocity += 40;
-			//			scoreUI.content = std::to_string(score += 1);
-			//			break;
-			//		}
-			//	}
-			//}
-=======
 			for (int i = 0; i < levelManager.bricks.size(); i++) {	//ball hit bricks
 				if (ball.Collision(levelManager.bricks[i])) {
-					levelManager.bricks.erase(levelManager.bricks.begin() + i);
-					scoreUI.content = std::to_string(score += 1);
-				}
-			}
->>>>>>> parent of d3869b9... level load optimize & different type of brick
-=======
-			for (int i = 0; i < levelManager.bricks.size(); i++) {	//ball hit bricks
-				switch (levelManager.bricks[i].type)
-				{
-				case Brick::normal:
-					if (ball.Collision(levelManager.bricks[i])) {
+					switch (levelManager.bricks[i].type)
+					{
+					case Brick::normal:
 						levelManager.bricks.erase(levelManager.bricks.begin() + i);
-						scoreUI.content = std::to_string(score += 1);
-					}
-					break;
-				case Brick::strong:
-					if (ball.Collision(levelManager.bricks[i])) {
+						scoreUI.content = "Score:" + std::to_string(score += 1);
+						destroyBrick.Play();
+						break;
+					case Brick::strong:
 						if (levelManager.bricks[i].hitPoint-- <= 0) {
 							levelManager.bricks.erase(levelManager.bricks.begin() + i);
-						}
-						scoreUI.content = std::to_string(score += 1);
-					}
-					break;
-				case Brick::invincible:
-					ball.Collision(levelManager.bricks[i]);
-					break;
-				case Brick::accelerate:
-					if (ball.Collision(levelManager.bricks[i])) {
+							destroyBrick.Play();
+						}else { hitBrick.Play(); }
+						scoreUI.content = "Score:" + std::to_string(score += 1);
+						break;
+					case Brick::invincible:
+						hitBrick.Play();
+						break;
+					case Brick::accelerate:
 						levelManager.bricks.erase(levelManager.bricks.begin() + i);
 						ball.velocity += 40;
-						scoreUI.content = std::to_string(score += 1);
+						scoreUI.content = "Score:" + std::to_string(score += 1);
+						destroyBrick.Play();
+						break;
 					}
-					break;
-				default:ball.Collision(levelManager.bricks[i]);
-					break;
 				}
 			}
->>>>>>> parent of 4c68e20... texture for different brick
 		}
 		////continuous collision // still something wrong
 		//if (ball.ContinuousCollision(player1)) {	//ball hit player1's paddle
@@ -271,8 +241,8 @@ int main()
 		ball.Update();
 
 		//test
-		anim.Update();
-		kojima.Update();
+		//anim.Update();
+		//kojima.Update();
 
 		window.clear(Color(0, 0, 0, 0));
 		//gameobject
@@ -283,7 +253,7 @@ int main()
 		player1.Draw();
 
 		//test
-		anim.Draw();
+		//anim.Draw();
 
 		//ui
 		fpsUI.Draw();
@@ -294,6 +264,7 @@ int main()
 				winUI.Draw();
 			}
 		}
+		health.Draw();
 		window.display();
 	}
 	return 0;

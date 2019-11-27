@@ -175,37 +175,30 @@ int main()
 			if (ball.Collision(player1)) {	//ball hit player's paddle
 				hit.Play();
 			}
-			for (int i = 0; i < levelManager.bricks.size(); i++) {	//ball hit bricks
-				switch (levelManager.bricks[i].type)
-				{
-				case Brick::normal:
-					if (ball.Collision(levelManager.bricks[i])) {
-						levelManager.bricks.erase(levelManager.bricks.begin() + i);
-						scoreUI.content = std::to_string(score += 1);
-					}
-					break;
-				case Brick::strong:
-					if (ball.Collision(levelManager.bricks[i])) {
-						if (levelManager.bricks[i].hitPoint-- <= 0) {
-							levelManager.bricks.erase(levelManager.bricks.begin() + i);
-						}
-						scoreUI.content = std::to_string(score += 1);
-					}
-					break;
-				case Brick::invincible:
-					ball.Collision(levelManager.bricks[i]);
-					break;
-				case Brick::accelerate:
-					if (ball.Collision(levelManager.bricks[i])) {
-						levelManager.bricks.erase(levelManager.bricks.begin() + i);
-						ball.velocity += 40;
-						scoreUI.content = std::to_string(score += 1);
-					}
-					break;
-				default:ball.Collision(levelManager.bricks[i]);
-					break;
-				}
-			}
+			//for (int i = 0; i < levelManager.bricks.size(); i++) {	//ball hit bricks
+			//	if (ball.Collision(levelManager.bricks[i])) {
+			//		switch (levelManager.bricks[i].type)
+			//		{
+			//		case Brick::normal:
+			//			levelManager.bricks.erase(levelManager.bricks.begin() + i);
+			//			scoreUI.content = std::to_string(score += 1);
+			//			break;
+			//		case Brick::strong:
+			//			if (levelManager.bricks[i].hitPoint-- <= 0) {
+			//				levelManager.bricks.erase(levelManager.bricks.begin() + i);
+			//			}
+			//			scoreUI.content = std::to_string(score += 1);
+			//			break;
+			//		case Brick::invincible:
+			//			break;
+			//		case Brick::accelerate:
+			//			levelManager.bricks.erase(levelManager.bricks.begin() + i);
+			//			ball.velocity += 40;
+			//			scoreUI.content = std::to_string(score += 1);
+			//			break;
+			//		}
+			//	}
+			//}
 		}
 		////continuous collision // still something wrong
 		//if (ball.ContinuousCollision(player1)) {	//ball hit player1's paddle
@@ -235,8 +228,8 @@ int main()
 		ball.Update();
 
 		//test
-		anim.Update();
-		kojima.Update();
+		//anim.Update();
+		//kojima.Update();
 
 		window.clear(Color(0, 0, 0, 0));
 		//gameobject
@@ -247,7 +240,7 @@ int main()
 		player1.Draw();
 
 		//test
-		anim.Draw();
+		//anim.Draw();
 
 		//ui
 		fpsUI.Draw();

@@ -17,6 +17,7 @@ public:
 	Sprite sprite;
 	enum BrickType{normal, strong, invincible, accelerate};
 	BrickType type;
+	int hitPoint = 1;
 
 	Brick(Vector2f position, Vector2f size);
 	Brick(Vector2f position);

@@ -39,6 +39,19 @@ Brick::Brick() {
 }
 
 void Brick::Draw() {
+	switch (type)
+	{
+	case Brick::normal: sprite.setColor(Color(250, 250, 250, 255));
+		break;
+	case Brick::strong: sprite.setColor(Color(150, 150, 150, 255));
+		break;
+	case Brick::invincible: sprite.setColor(Color(50, 50, 50, 255));
+		break;
+	case Brick::accelerate: sprite.setColor(Color(255, 50, 50, 255));
+		break;
+	default:
+		break;
+	}
 	sprite.setTexture(texture);
 	sprite.setPosition(position);
 	window.draw(sprite);

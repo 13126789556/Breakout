@@ -123,7 +123,7 @@ int main()
 				levelManager.Creat(lvNO % 3);
 			}
 			if (Keyboard::isKeyPressed(Keyboard::Space)) {
-				ball.velocity = ballSpeed;
+				ball.velocity = ballSpeed + lvNO * 60;
 				isReadyState = false;
 			}
 		}
@@ -135,7 +135,7 @@ int main()
 			isReadyState = true;
 			lvNO++;
 			winUI.content = "			You Win! ";
-			ball.velocity += 60;
+			ball.velocity += 100;
 		}
 
 		//ball out of the table
@@ -176,9 +176,34 @@ int main()
 				hit.Play();
 			}
 			for (int i = 0; i < levelManager.bricks.size(); i++) {	//ball hit bricks
-				if (ball.Collision(levelManager.bricks[i])) {
-					levelManager.bricks.erase(levelManager.bricks.begin() + i);
-					scoreUI.content = std::to_string(score += 1);
+				switch (levelManager.bricks[i].type)
+				{
+				case Brick::normal:
+					if (ball.Collision(levelManager.bricks[i])) {
+						levelManager.bricks.erase(levelManager.bricks.begin() + i);
+						scoreUI.content = std::to_string(score += 1);
+					}
+					break;
+				case Brick::strong:
+					if (ball.Collision(levelManager.bricks[i])) {
+						if (levelManager.bricks[i].hitPoint-- <= 0) {
+							levelManager.bricks.erase(levelManager.bricks.begin() + i);
+						}
+						scoreUI.content = std::to_string(score += 1);
+					}
+					break;
+				case Brick::invincible:
+					ball.Collision(levelManager.bricks[i]);
+					break;
+				case Brick::accelerate:
+					if (ball.Collision(levelManager.bricks[i])) {
+						levelManager.bricks.erase(levelManager.bricks.begin() + i);
+						ball.velocity += 40;
+						scoreUI.content = std::to_string(score += 1);
+					}
+					break;
+				default:ball.Collision(levelManager.bricks[i]);
+					break;
 				}
 			}
 		}

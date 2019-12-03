@@ -143,6 +143,7 @@ int main()
 			winUI.content = "			You Win! ";
 			ball.velocity += 100;
 			winLvl.Play();
+			levelManager.bricks.clear();
 		}
 
 		//ball out of the table

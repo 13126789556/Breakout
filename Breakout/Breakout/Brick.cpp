@@ -7,11 +7,6 @@ extern RenderWindow window;
 Brick::Brick(Vector2f position, Vector2f size) {
 	this->position = position;
 	this->size = size;
-	textureN.loadFromFile("Brick.png");
-	textureS.loadFromFile("Brick_Strong.png");
-	textureB.loadFromFile("Brick_Broke.png");
-	textureI.loadFromFile("Brick_Invincible.png");
-	textureA.loadFromFile("Brick_Accelerate.png");
 	sprite.setTexture(textureN);
 	sprite.setOrigin(size.x / 2, size.y / 2);
 	sprite.setScale(this->size.x / textureN.getSize().x,
@@ -21,11 +16,6 @@ Brick::Brick(Vector2f position, Vector2f size) {
 }
 Brick::Brick(Vector2f position) {
 	this->position = position;
-	textureN.loadFromFile("Brick.png");
-	textureS.loadFromFile("Brick_Strong.png");
-	textureB.loadFromFile("Brick_Broke.png");
-	textureI.loadFromFile("Brick_Invincible.png");
-	textureA.loadFromFile("Brick_Accelerate.png");
 	size = (Vector2f)textureN.getSize();
 	sprite.setTexture(textureN);
 	sprite.setOrigin(size.x / 2, size.y / 2);
@@ -35,11 +25,6 @@ Brick::Brick(Vector2f position) {
 	type = normal;
 }
 Brick::Brick() {
-	textureN.loadFromFile("Brick.png");
-	textureS.loadFromFile("Brick_Strong.png");
-	textureB.loadFromFile("Brick_Broke.png");
-	textureI.loadFromFile("Brick_Invincible.png");
-	textureA.loadFromFile("Brick_Accelerate.png");
 	size = (Vector2f)textureN.getSize();
 	position = Vector2f(size.x / 2, size.y / 2);
 	sprite.setTexture(textureN);

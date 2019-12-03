@@ -25,6 +25,8 @@ float ballRadius, ballSpeed, p1Speed, t;
 int fps, frameCount, score, life, lvNO;
 bool isReadyState, isEnd;
 
+Texture textureN, textureS, textureB, textureI, textureA;
+
 float Magnitude(Vector2f v) {
 	return sqrt(v.x * v.x + v.y * v.y);
 }
@@ -64,6 +66,11 @@ RenderWindow window(VideoMode(winSize.x, winSize.y), "Pong!");
 
 int main()
 {
+	textureN.loadFromFile("Brick.png");
+	textureS.loadFromFile("Brick_Strong.png");
+	textureB.loadFromFile("Brick_Broke.png");
+	textureI.loadFromFile("Brick_Invincible.png");
+	textureA.loadFromFile("Brick_Accelerate.png");
 	Initial();
 	Ball ball(ballPos, ballDir, ballRadius, ballSpeed);
 	LevelManager levelManager;

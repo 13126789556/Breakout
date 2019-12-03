@@ -7,13 +7,14 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Main.hpp>
 using namespace sf;
+
+extern Texture textureN, textureS, textureB, textureI, textureA;
 class Brick
 {
 public:
 	Vector2f position;
 	Vector2f size;
 	RectangleShape rectangle;
-	Texture textureN, textureS, textureB, textureI, textureA;
 	Sprite sprite;
 	enum BrickType{normal, strong, invincible, accelerate};
 	BrickType type;
